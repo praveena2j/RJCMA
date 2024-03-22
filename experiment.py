@@ -107,8 +107,8 @@ class Experiment(GenericExperiment):
         self.init_randomness()
         modality = [modal for modal in self.modality if "continuous_label" not in modal]
 
-        if self.model_name == "LFAN":
-            model = LFAN(backbone_settings=self.config['backbone_settings'],
+        if self.model_name == "RCMA":
+            model = RCMA(backbone_settings=self.config['backbone_settings'],
                                                    modality=modality, example_length=self.window_length,
                                                    kernel_size=self.tcn_kernel_size,
                                                    tcn_channel=self.config['tcn']['channels'], modal_dim=self.modal_dim, num_heads=self.num_heads,
