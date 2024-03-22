@@ -5,7 +5,7 @@ from trainer import Trainer
 
 from dataset import DataArranger, Dataset
 from base.checkpointer import Checkpointer
-from models.model import LFAN, CAN
+from models.model import RCMA, CAN
 
 from base.parameter_control import ResnetParamControl
 
