@@ -62,7 +62,7 @@ if __name__ == '__main__':
                         help='The size of the 1D kernel for temporal convolutional networks.')
 
     # 2.1. Overall settings
-    parser.add_argument('-model_name', default="LFAN", help='LFAN, CAN')
+    parser.add_argument('-model_name', default="RCMA", help='LFAN, CAN')
     parser.add_argument('-cross_validation', default=1, type=int)
     parser.add_argument('-num_folds', default=6, type=int)
     parser.add_argument('-folds_to_run', default=[1], nargs="+", type=int, help='Which fold(s) to run? Each fold may take 1-2 days.')
