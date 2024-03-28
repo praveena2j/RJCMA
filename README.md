@@ -1,10 +1,10 @@
-In this work, we present Recursive Joint Cross-Modal Attention across audio, visual and text modalities for dimensional emotion recognition. We submitted our results on test set for Valence arousal challenge of 6th ABAW competition. 
+In this work, we present Recursive Joint Cross-Modal Attention across audio, visual and text modalities for dimensional emotion recognition. We submitted our results on test set for Valence-arousal challenge of 6th ABAW competition. 
 
 ## References
 If you find this work useful in your research, please cite it.
 ```bibtex
-@article{rcma,
-  title = {Recursive Cross-Modal Attention for Multimodal Fusion in Dimensional Emotion Recognition
+@article{rjcma,
+  title = {Recursive Joint Cross-Modal Attention for Multimodal Fusion in Dimensional Emotion Recognition
 },
   author = {R. Gnana Praveen, Jahangir Alam},
   journal = {arXiv preprint arXiv:2211.06627},
