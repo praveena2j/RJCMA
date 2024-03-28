@@ -316,7 +316,7 @@ class LeaderFollowerAttentionNetworkWithMultiHead(nn.Module):
         return x
 
 
-class LFAN(nn.Module):
+class RCMA(nn.Module):
     def __init__(self, backbone_settings, modality=['frame'], kernel_size=5, example_length=300, tcn_attention=0,
                  tcn_channel={'video': [512, 256, 256, 128], 'cnn_res50': [512, 256, 256, 128], 'mfcc':[32, 32, 32, 32], 'vggish': [32, 32, 32, 32], 'logmel': [32, 32, 32, 32]},
                  embedding_dim={'video': 512,  'bert': 768, 'cnn_res50': 512, 'mfcc': 39, 'vggish': 128, 'logmel': 128, 'egemaps': 88},
