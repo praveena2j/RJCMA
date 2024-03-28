@@ -22,8 +22,6 @@ class DenseCoAttn(nn.Module):
 	def forward(self, value1, value2, value3):
 
 		joint = torch.cat((value1, value2, value3), dim=-1)
-		#at_joint = torch.cat((value2, value3), dim=-1)
-		#tv_joint = torch.cat((value3, value1), dim=-1)
 
 		# audio  audio*W*joint
 		va_joint = self.query_linear(joint)
