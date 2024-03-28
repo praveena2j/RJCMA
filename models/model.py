@@ -316,7 +316,7 @@ class LeaderFollowerAttentionNetworkWithMultiHead(nn.Module):
         return x
 
 
-class RCMA(nn.Module):
+class LFAN(nn.Module):
     def __init__(self, backbone_settings, modality=['frame'], kernel_size=5, example_length=300, tcn_attention=0,
                  tcn_channel={'video': [512, 256, 256, 128], 'cnn_res50': [512, 256, 256, 128], 'mfcc':[32, 32, 32, 32], 'vggish': [32, 32, 32, 32], 'logmel': [32, 32, 32, 32]},
                  embedding_dim={'video': 512,  'bert': 768, 'cnn_res50': 512, 'mfcc': 39, 'vggish': 128, 'logmel': 128, 'egemaps': 88},
@@ -393,9 +393,17 @@ class RCMA(nn.Module):
         #                                           modal_dim=self.modal_dim, num_heads=self.num_heads,
         #                                           dropout=0.1)
 
-        self.coattn = DCNLayer(512, 128, 512, 2, 0.6)
+        self.coattn = DCNLayer(256, 128, 128, 2, 0.6)
 
-        self.regressor = nn.Linear(self.final_dim, self.output_dim)
+        #self.regressor = nn.Linear(self.final_dim, self.output_dim)
+        self.regressor1 = nn.Linear(512, 256)
+        self.bn1 = BatchNorm1d(256)
+        self.regressor2 = nn.Linear(256, self.output_dim)
+
+        #self.regressor = nn.Sequential(nn.Linear(self.final_dim, 128),
+        #                                nn.ReLU(inplace=True),
+        #                             nn.Dropout(0.6),
+        #                         nn.Linear(128, 1))
 
     def forward(self, X):
 
@@ -418,16 +426,21 @@ class RCMA(nn.Module):
             X[modal] = X[modal].squeeze(1).transpose(1, 2)
             X[modal] = self.temporal[modal](X[modal])
             X[modal] = self.bn[modal](X[modal]).transpose(1, 2)
-            
-
+           
         video, audio, text = self.coattn(X['video'], X['logmel'], X['bert'])
         #follower = self.fusion(X)
-        X = torch.cat((video, audio, text), dim=-1)
+        c = torch.cat((video, audio, text), dim=-1)
+       
+        c = self.regressor1(c).transpose(1, 2)
+        c = self.bn1(c).transpose(1, 2)
+        c = F.leaky_relu(c)
+        c = self.regressor2(c)
+        c = torch.tanh(c)
         #X = torch.cat((X[self.modality[0]], follower), dim=-1)
-        X = self.regressor(X)
-        X = X.view(batch_size, self.example_length, -1)
-        X = torch.tanh(X)
-        return X
+        #X = self.regressor(X)
+        #X = X.view(batch_size, self.example_length, -1)
+        #X = torch.tanh(X)
+        return c
 
 
 class AttentionFusion(nn.Module):
@@ -494,12 +507,12 @@ class CAN(nn.Module):
 
         feas_modalities = [tcn_settings[modal]['channel'][-1] for modal in modalities]
         self.fuse = AttentionFusion(num_feats_modality=feas_modalities, num_out_feats=128)
-
+        self.coattn = DCNLayer(64, 128, 2, 0.6)
         self.conv_c = nn.Conv1d(128 * len(modalities), 128, 1)
 
-        self.bn1 = BatchNorm1d(128 * len(modalities))
-        self.fc1 = Linear(128* len(modalities), 128* len(modalities))
-        self.fc2 = Linear(128* len(modalities), output_dim)
+        self.bn1 = BatchNorm1d(192)
+        self.fc1 = Linear(192, 192)
+        self.fc2 = Linear(192, output_dim)
 
 
         if 'video' in modalities:
@@ -557,15 +570,19 @@ class CAN(nn.Module):
             X['logmel'] = X['logmel'].view(batch_size, length, feature_dim).unsqueeze(1) # [batch, 1, length, feature_dim]
 
         for modal in X:
+            #print(modal)
             x[modal] = X[modal].squeeze(1).transpose(1, 2)
             x[modal] = self.temporal[modal](x[modal])
-            x[modal] = self.bn[modal](x[modal])
-
-        c = self.fuse(x)
+            x[modal] = self.bn[modal](x[modal]).transpose(1, 2)
+            
+            #print(x[modal].shape)
+                      
+        video, audio = self.coattn(x['logmel'], x['video'])
+        c = torch.cat((video, audio), dim=-1)
+        #c = self.fuse(x)
         c = self.fc1(c).transpose(1, 2)
         c = self.bn1(c).transpose(1, 2)
         c = F.leaky_relu(c)
         c = self.fc2(c)
         c = torch.tanh(c)
-
         return c

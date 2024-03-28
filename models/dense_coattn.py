@@ -7,13 +7,9 @@ class DenseCoAttn(nn.Module):
 
 	def __init__(self, dim1, dim2, dim3, dropout):
 		super(DenseCoAttn, self).__init__()
-		dim_va = dim1 + dim2
-		dim_at = dim2 + dim3
-		dim_tv = dim3 + dim1
+		dim = dim1 + dim2 + dim3
 		self.dropouts = nn.ModuleList([nn.Dropout(p=dropout) for _ in range(3)])
-		self.query_linear_va = nn.Linear(dim_va, dim_va)
-		self.query_linear_at = nn.Linear(dim_at, dim_at)
-		self.query_linear_tv = nn.Linear(dim_tv, dim_tv)
+		self.query_linear = nn.Linear(dim, dim)
 
 		self.key1_linear = nn.Linear(300, 300)
 		self.key2_linear = nn.Linear(300, 300)
@@ -25,15 +21,12 @@ class DenseCoAttn(nn.Module):
 
 	def forward(self, value1, value2, value3):
 
-		va_joint = torch.cat((value1, value2), dim=-1)
-		at_joint = torch.cat((value2, value3), dim=-1)
-		tv_joint = torch.cat((value3, value1), dim=-1)
+		joint = torch.cat((value1, value2, value3), dim=-1)
+		#at_joint = torch.cat((value2, value3), dim=-1)
+		#tv_joint = torch.cat((value3, value1), dim=-1)
 
 		# audio  audio*W*joint
-		va_joint = self.query_linear_va(va_joint)
-		at_joint = self.query_linear_at(at_joint)			
-		tv_joint = self.query_linear_tv(tv_joint)
-
+		va_joint = self.query_linear(joint)
 
 		key1 = self.key1_linear(value1.transpose(1, 2))
 		key2 = self.key2_linear(value2.transpose(1, 2))
@@ -43,9 +36,9 @@ class DenseCoAttn(nn.Module):
 		value2 = self.value2_linear(value2)
 		value3 = self.value3_linear(value3)
 
-		weighted1, attn1 = self.qkv_attention(at_joint, key1, value1, dropout=self.dropouts[0])
-		weighted2, attn2 = self.qkv_attention(tv_joint, key2, value2, dropout=self.dropouts[1])
-		weighted3, attn3 = self.qkv_attention(va_joint, key3, value3, dropout=self.dropouts[2])
+		weighted1, attn1 = self.qkv_attention(joint, key1, value1, dropout=self.dropouts[0])
+		weighted2, attn2 = self.qkv_attention(joint, key2, value2, dropout=self.dropouts[1])
+		weighted3, attn3 = self.qkv_attention(joint, key3, value3, dropout=self.dropouts[2])
 
 		return weighted1, weighted2, weighted3
 

@@ -10,17 +10,17 @@ class NormalSubLayer(nn.Module):
         self.dense_coattn = DenseCoAttn(dim1, dim2, dim3, dropout)
         self.linears = nn.ModuleList([
             nn.Sequential(
-                nn.Linear(dim2 + dim3, dim1),
+                nn.Linear(dim1 + dim2 + dim3, dim1),
                 nn.ReLU(inplace=True),
                 nn.Dropout(p=dropout),
             ),
             nn.Sequential(
-                nn.Linear(dim1 + dim3, dim2),
+                nn.Linear(dim1 + dim2 + dim3, dim2),
                 nn.ReLU(inplace=True),
                 nn.Dropout(p=dropout),
             ),
             nn.Sequential(
-                nn.Linear(dim1 + dim2, dim3),
+                nn.Linear(dim1 + dim2 + dim3, dim3),
                 nn.ReLU(inplace=True),
                 nn.Dropout(p=dropout),
             )
