@@ -3,12 +3,11 @@ In this work, we present Recursive Joint Cross-Modal Attention across audio, vis
 ## References
 If you find this work useful in your research, please cite it.
 ```bibtex
-@article{rjcma,
-  title = {Recursive Joint Cross-Modal Attention for Multimodal Fusion in Dimensional Emotion Recognition
-},
-  author = {R. Gnana Praveen, Jahangir Alam},
-  journal = {arXiv preprint arXiv:2211.06627},
-  year = {2024},
+@article{praveen2024recursive,
+  title={Recursive Cross-Modal Attention for Multimodal Fusion in Dimensional Emotion Recognition},
+  author={Praveen, R Gnana and Alam, Jahangir},
+  journal={arXiv preprint arXiv:2403.13659},
+  year={2024}
 }
 ```
 
